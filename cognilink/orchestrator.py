@@ -103,9 +103,8 @@ class SessionOrchestrator:
                 self.graph_store.update_node(node_id, summary=summary)
                 self.graph_store.set_node_state(node_id, NodeState.COMPLETED)
             except Exception as e:
-                # LLM unavailable — leave as PENDING
-                self.graph_store.set_node_state(node_id, NodeState.STALE)
-                self.graph_store.set_node_state(node_id, NodeState.PENDING)
+                # LLM unavailable — node stays in RUNNING state, mark summary as empty
+                self.graph_store.update_node(node_id, summary="(summarization pending - LLM unavailable)")
                 logger.warning("LLM unavailable for node '%s': %s", node_id, e)
 
             node_ids.append(node_id)
