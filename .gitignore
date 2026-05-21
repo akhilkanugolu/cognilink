@@ -31,6 +31,9 @@ cognilink_graph.html
 cognilink_graph.json
 *.db
 
+# Kiro specs (internal development docs)
+.kiro/
+
 # IDE
 .idea/
 .vscode/
