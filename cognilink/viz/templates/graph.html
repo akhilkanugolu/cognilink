@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CogniLink Graph</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body { margin: 0; font-family: sans-serif; }
+        #graph { width: 100%; height: 100vh; }
+        #details { position: fixed; top: 10px; right: 10px; background: white; border: 1px solid #ccc; padding: 15px; border-radius: 8px; max-width: 350px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        #details h3 { margin-top: 0; }
+        .legend { position: fixed; bottom: 10px; left: 10px; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
+        .legend-item { display: flex; align-items: center; margin: 4px 0; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div id="graph"></div>
+    <div id="details">
+        <h3 id="detail-title"></h3>
+        <p><strong>State:</strong> <span id="detail-state"></span></p>
+        <p><strong>Source:</strong> <span id="detail-source"></span></p>
+        <p><strong>Summary:</strong> <span id="detail-summary"></span></p>
+        <button onclick="document.getElementById('details').style.display='none'">Close</button>
+    </div>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4CAF50"></div>COMPLETED</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FFC107"></div>RUNNING</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F44336"></div>STALE</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9E9E9E"></div>PENDING</div>
+    </div>
+    <script>
+        var nodes = new vis.DataSet({{ nodes | tojson }});
+        var edges = new vis.DataSet({{ edges | tojson }});
+        var container = document.getElementById('graph');
+        var data = { nodes: nodes, edges: edges };
+        var options = {
+            edges: { arrows: 'to', font: { size: 10 } },
+            nodes: { shape: 'box', font: { size: 14 } },
+            physics: { stabilization: { iterations: 100 } }
+        };
+        var network = new vis.Network(container, data, options);
+        
+        var nodeData = {{ node_details | tojson }};
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var info = nodeData[nodeId];
+                if (info) {
+                    document.getElementById('detail-title').textContent = nodeId;
+                    document.getElementById('detail-state').textContent = info.state;
+                    document.getElementById('detail-source').textContent = info.source;
+                    document.getElementById('detail-summary').textContent = info.summary;
+                    document.getElementById('details').style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
